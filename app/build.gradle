@@ -1,0 +1,60 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.plugin.compose'
+}
+
+android {
+    namespace 'io.github.zod701.pagurin'
+    compileSdk 36
+    ndkVersion '27.3.13750724'
+
+    defaultConfig {
+        applicationId 'io.github.zod701.pagurin'
+        minSdk 29
+        targetSdk 36
+        versionCode 2
+        versionName '0.1.0'
+        ndk { abiFilters 'arm64-v8a' }
+    }
+    // A keystore of one's own, when there is one (%APPDATA%\Pagurin on Windows, ~/.config/Pagurin elsewhere; the releases' key on the PC they are made on): an update installs
+    // over the app only with the same signer, and an uninstall would delete the games and their saves. Its passwords are in keystore.properties beside it, outside the
+    // repository. Without one the build signs with the Android SDK's debug key of the PC it runs on, which works the same while every build comes from that PC
+    def appData = System.getenv('APPDATA')
+    def keyDir = appData ? new File(appData, 'Pagurin') : new File(System.getProperty('user.home'), '.config/Pagurin')
+    def keyStore = new File(keyDir, 'keystore.p12')
+    def keyProps = new Properties()
+    def keyPropsFile = new File(keyDir, 'keystore.properties')
+    if (keyPropsFile.isFile()) keyPropsFile.withInputStream { keyProps.load(it) }
+    signingConfigs {
+        pagurin {
+            storeFile keyStore
+            storeType 'PKCS12'
+            storePassword keyProps.getProperty('storePassword', System.getenv('PAGURIN_STORE_PASSWORD') ?: '')
+            keyAlias 'pagurin'
+            keyPassword keyProps.getProperty('keyPassword', System.getenv('PAGURIN_KEY_PASSWORD') ?: '')
+        }
+    }
+    buildTypes {
+        debug { if (keyStore.isFile()) signingConfig signingConfigs.pagurin }
+        // What is published: not debuggable (another app's adb cannot read its storage); signed with the same key as debug builds, so either installs over the other.
+        // Not shrunk: classes are found by name (Shizuku's ShellService, AYN's root service through reflection)
+        release { if (keyStore.isFile()) signingConfig signingConfigs.pagurin; minifyEnabled false }
+    }
+    externalNativeBuild {
+        cmake { path file('../stub/CMakeLists.txt'); version '3.22.1' }
+    }
+    buildFeatures { compose true; aidl true }   // aidl: IShell, the shell Shizuku runs ShellService in
+    packaging { jniLibs { useLegacyPackaging true } }
+}
+
+dependencies {
+    implementation platform('androidx.compose:compose-bom:2026.05.00')
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.foundation:foundation'
+    implementation 'androidx.compose.material3:material3'
+    implementation 'androidx.activity:activity-compose:1.13.0'
+    implementation 'dev.rikka.shizuku:api:13.1.5'
+    implementation 'dev.rikka.shizuku:provider:13.1.5'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.json:json:20240303'   // the real org.json for unit tests: Android's is a stub there
+}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- An adaptive icon with a clear background: the launcher's mask has nothing to cut but the shell, which sits inside the 66 dp every mask shows. The picture: artwork/pagurin-icon.png -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@android:color/transparent" />
+    <foreground android:drawable="@drawable/ic_launcher_fg" />
+</adaptive-icon>

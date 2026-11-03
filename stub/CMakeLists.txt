@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.22.1)
+project(pagurin_stub C)
+add_library(pagurin_stub SHARED pagurin_stub.c)
+target_compile_options(pagurin_stub PRIVATE -Wall -fvisibility=hidden)
+target_link_options(pagurin_stub PRIVATE -Wl,-z,max-page-size=16384)
+target_link_libraries(pagurin_stub android log dl)

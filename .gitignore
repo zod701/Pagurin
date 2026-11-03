@@ -1,0 +1,10 @@
+out/
+__pycache__/
+.claude/
+.gradle/
+.kotlin/
+build/
+.cxx/
+local.properties
+.vscode/
+TODO.md

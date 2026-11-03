@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Pagurin 라이브러리</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+</style>
+</helmet>
+<div style="width: 1280px; height: 720px; box-sizing: border-box; display: flex; background: #0B0D10; color: #F1F3F5; font-family: 'IBM Plex Sans KR', sans-serif; overflow: hidden">
+  <nav aria-label="주 메뉴" style="width: 104px; flex: none; box-sizing: border-box; padding: 20px 12px; display: flex; flex-direction: column; gap: 8px; background: #101317; border-right: 1px solid #23282F">
+    <div style="height: 44px; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-weight: 500; font-size: 15px; color: {{accent}}; margin-bottom: 12px">Pagurin</div>
+    <a href="Main.dc.html" aria-current="page" style="height: 76px; border-radius: 14px; background: #20252C; color: {{accent}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 600">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="8" height="8" rx="1.5"></rect><rect x="13" y="3" width="8" height="8" rx="1.5"></rect><rect x="3" y="13" width="8" height="8" rx="1.5"></rect><rect x="13" y="13" width="8" height="8" rx="1.5"></rect></svg>
+      라이브러리
+    </a>
+    <a href="Drivers.dc.html" style="height: 76px; border-radius: 14px; color: #AEB6C0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 500">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="6" width="12" height="12" rx="2"></rect><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"></path></svg>
+      드라이버
+    </a>
+    <div style="flex: 1"></div>
+    <div style="font-size: 12px; line-height: 1.5; color: #AEB6C0; text-align: center">여유 공간<br><span style="font-family: 'IBM Plex Mono', monospace; color: #F1F3F5">324 GB</span></div>
+  </nav>
+  <main style="flex: 1; min-width: 0; box-sizing: border-box; padding: 24px 32px 0; display: flex; flex-direction: column">
+    <header style="display: flex; align-items: center; gap: 14px; height: 48px">
+      <h1 style="margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.02em">라이브러리</h1>
+      <span style="font-size: 15px; color: #AEB6C0">게임 8개</span>
+      <div style="flex: 1"></div>
+      <button aria-label="검색" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid #2F353E; background: #14181D; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg></button>
+      <button aria-label="정렬" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid #2F353E; background: #14181D; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M7 12h10M10 18h4"></path></svg></button>
+      <button style="height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #2F353E; background: #14181D; font-size: 14px; font-weight: 500">PC에서 게임 넣는 법</button>
+    </header>
+    <div style="display: flex; gap: 8px; margin-top: 14px">
+      <button aria-pressed="true" style="height: 40px; padding: 0 16px; border-radius: 20px; border: 1.5px solid {{accent}}; background: #20252C; font-size: 14px; font-weight: 600">전체</button>
+      <button style="height: 40px; padding: 0 16px; border-radius: 20px; border: 1px solid #2F353E; background: transparent; color: #C5CBD3; font-size: 14px">플레이 가능</button>
+      <button style="height: 40px; padding: 0 16px; border-radius: 20px; border: 1px solid #2F353E; background: transparent; color: #C5CBD3; font-size: 14px">작업 중</button>
+      <button style="height: 40px; padding: 0 16px; border-radius: 20px; border: 1px solid #2F353E; background: transparent; color: #C5CBD3; font-size: 14px">실험</button>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 18px">
+      <sc-for list="{{games}}" as="g" hint-placeholder-count="8">
+        <a href="GamePage.dc.html" aria-label="{{g.title}} 열기" style="display: block; height: 228px; border-radius: 14px; overflow: hidden; background: #14181D; outline: {{g.outline}}; outline-offset: 2px">
+          <div style="height: 150px; background: {{g.color}}; position: relative; display: flex; align-items: center; justify-content: center">
+            <span style="font-size: 46px; font-weight: 700; letter-spacing: -0.03em; color: #F1F3F5">{{g.mono}}</span>
+            <span style="position: absolute; top: 10px; left: 10px; height: 26px; padding: 0 10px; border-radius: 8px; background: #0B0D10; color: #F1F3F5; font-size: 12px; font-weight: 500; display: flex; align-items: center">{{g.status}}</span>
+          </div>
+          <div style="padding: 12px 14px">
+            <div style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{g.title}}</div>
+            <div style="margin-top: 5px; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: #AEB6C0">{{g.meta}}</div>
+          </div>
+        </a>
+      </sc-for>
+    </div>
+    <div style="flex: 1"></div>
+    <footer style="height: 44px; display: flex; align-items: center; justify-content: flex-end; gap: 22px; font-size: 13px; color: #C5CBD3">
+      <span><b style="font-family: 'IBM Plex Mono', monospace; color: #F1F3F5">A</b> 열기</span>
+      <span><b style="font-family: 'IBM Plex Mono', monospace; color: #F1F3F5">X</b> 바로 실행</span>
+      <span><b style="font-family: 'IBM Plex Mono', monospace; color: #F1F3F5">Y</b> 정렬</span>
+      <span><b style="font-family: 'IBM Plex Mono', monospace; color: #F1F3F5">LB RB</b> 메뉴 이동</span>
+    </footer>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#F5B83D","options":["#F5B83D","#4DA3FF","#5ED6A0","#F1F3F5"]},"$preview":{"width":1280,"height":720}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#F5B83D';
+    const rows = [
+      ['게임 1', 'G1', '실험', '1.0.0 · 16.0 GB', '#27504A'],
+      ['게임 2', 'G2', '실험', '2.1.0 · 12.0 GB', '#7A2E2E'],
+      ['게임 3', 'G3', '플레이 가능', '1.4.1', '#6B3A1E'],
+      ['게임 4', 'G4', '플레이 가능', '2.1.0', '#3A2F62'],
+      ['게임 5', 'G5', '플레이 가능', '1.4.2', '#23506E'],
+      ['게임 6', 'G6', '플레이 가능', '1.0.1', '#5C2F58'],
+      ['게임 7', 'G7', '작업 중', '1.0.1', '#4E4A22'],
+      ['게임 8', 'G8', '플레이 가능', '1.1.1', '#2C3F5C'],
+    ];
+    return {
+      accent,
+      games: rows.map((r, i) => ({ title: r[0], mono: r[1], status: r[2], meta: r[3], color: r[4], outline: i === 0 ? `3px solid ${accent}` : 'none' })),
+    };
+  }
+}
+</script>
+</body>
+</html>

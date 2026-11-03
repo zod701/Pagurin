@@ -1,0 +1,83 @@
+<!doctype html>
+<!-- The README's picture: the app's library at the Thor's 1920x1080, with sample games. Made into docs/images/library.png with headless Chrome: a real screenshot would show real games -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pagurin library with sample games</title>
+<style>
+* { box-sizing: border-box }
+html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #0B0D10; color: #F1F3F5; font-family: "Segoe UI", sans-serif }
+.mono { font-family: Consolas, monospace }
+.rail { position: absolute; left: 0; top: 0; width: 175px; height: 1080px; background: #101317 }
+.word { position: absolute; top: 37px; width: 175px; text-align: center; font-size: 28px; color: #F5B83D }
+.item { position: absolute; left: 18px; width: 139px; height: 134px; border-radius: 22px; color: #AEB6C0; font-size: 26px; font-weight: 500; text-align: center }
+.item svg { display: block; margin: 8px auto 6px; width: 50px; height: 50px; fill: none; stroke: currentColor; stroke-width: 3.5 }
+.item.on { background: #20252C; color: #F5B83D; font-weight: 600 }
+.free { position: absolute; bottom: 36px; width: 175px; text-align: center; font-size: 25px; color: #AEB6C0 }
+.free b { display: block; margin-top: 18px; font-size: 28px; font-weight: 400; color: #F1F3F5 }
+h1 { position: absolute; left: 221px; top: 40px; margin: 0; font-size: 56px; line-height: 76px; font-weight: 700 }
+.count { position: absolute; left: 427px; top: 60px; font-size: 30px; color: #AEB6C0 }
+.bar { position: absolute; top: 37px; right: 46px; display: flex; gap: 23px }
+.btn { height: 83px; padding: 0 28px; display: flex; align-items: center; border: 2px solid #2F353E; border-radius: 22px; background: #14181D; font-size: 30px; font-weight: 500 }
+.card { position: absolute; width: 396px; height: 370px; border-radius: 22px; overflow: hidden; background: #14181D }
+.card.focus::after { content: ""; position: absolute; inset: 0; border: 5px solid #F5B83D; border-radius: 22px }
+.cover { position: absolute; left: 0; top: 0; width: 396px; height: 221px; display: block }
+.status { position: absolute; left: 14px; top: 14px; height: 70px; padding: 0 17px; display: flex; align-items: center; border-radius: 14px; background: #0B0D10; font-size: 26px; font-weight: 500 }
+.name { position: absolute; left: 24px; top: 242px; font-size: 31px; font-weight: 600 }
+.meta { position: absolute; left: 24px; top: 310px; font-size: 26px; color: #AEB6C0 }
+.hints { position: absolute; right: 47px; bottom: 16px; display: flex; gap: 34px; font-size: 28px; color: #C5CBD3 }
+.hints b { margin-right: 10px; font-weight: 500; color: #F1F3F5 }
+</style>
+</head>
+<body>
+<div class="rail">
+  <div class="word mono">Pagurin</div>
+  <div class="item on" style="top: 116px"><svg viewBox="0 0 50 50"><rect x="3" y="3" width="20" height="20" rx="3"/><rect x="27" y="3" width="20" height="20" rx="3"/><rect x="3" y="27" width="20" height="20" rx="3"/><rect x="27" y="27" width="20" height="20" rx="3"/></svg>Library</div>
+  <div class="item" style="top: 264px"><svg viewBox="0 0 50 50"><rect x="11" y="11" width="28" height="28" rx="4"/><path d="M18 1v10M32 1v10M18 39v10M32 39v10M1 18h10M1 32h10M39 18h10M39 32h10"/></svg>Drivers</div>
+  <div class="item" style="top: 412px"><svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="15"/><path d="M25 10V1M25 49v-9M10 25H1M49 25h-9M14.4 14.4 8 8M42 42l-6.4-6.4M14.4 35.6 8 42M42 8l-6.4 6.4"/></svg>Settings</div>
+  <div class="free">Free space<b class="mono">128.0 GB</b></div>
+</div>
+
+<h1>Library</h1>
+<div class="count">8 games</div>
+<div class="bar"><div class="btn">Search</div><div class="btn">Sort: Name</div><div class="btn">Add games</div></div>
+
+
+<div class="card focus" style="left: 221px; top: 152px">
+  <svg class="cover" viewBox="0 0 396 221" aria-hidden="true"><rect width="396" height="221" fill="#1F4E5F"/><circle cx="300" cy="66" r="42" fill="#F2C572"/><path d="M0 221V132l86-58 74 50 86-68 150 92v73z" fill="#2B7A78"/><path d="M0 221v-46l112-37 92 34 92-24 100 34v39z" fill="#17494D"/></svg>
+  <div class="status">Playable</div><div class="name">Sample Game 1</div><div class="meta mono">1.2.0 / 8.4 GB</div>
+</div>
+<div class="card" style="left: 640px; top: 152px">
+  <svg class="cover" viewBox="0 0 396 221" aria-hidden="true"><rect width="396" height="221" fill="#3B2A63"/><path d="M198 0 396 221H0z" fill="#5B3FA0"/><path d="M198 66 318 221H78z" fill="#8B6BDA"/><path d="M198 132 252 221H144z" fill="#D9C7FF"/></svg>
+  <div class="status">Playable</div><div class="name">Sample Game 2</div><div class="meta mono">2.0.1 / 12.6 GB</div>
+</div>
+<div class="card" style="left: 1059px; top: 152px">
+  <svg class="cover" viewBox="0 0 396 221" aria-hidden="true"><rect width="396" height="221" fill="#7A2F36"/><circle cx="118" cy="110" r="84" fill="#C4515A"/><circle cx="118" cy="110" r="46" fill="#F0A2A0"/><rect x="232" y="30" width="118" height="161" rx="14" fill="#4E1B22"/><rect x="256" y="58" width="70" height="105" rx="8" fill="#E9C46A"/></svg>
+  <div class="status">In progress</div><div class="name">Sample Game 3</div><div class="meta mono">1.0.0 / 5.1 GB</div>
+</div>
+<div class="card" style="left: 1478px; top: 152px">
+  <svg class="cover" viewBox="0 0 396 221" aria-hidden="true"><rect width="396" height="221" fill="#173B5C"/><path d="M0 72c66-40 132-40 198 0s132 40 198 0v149H0z" fill="#2A6F97"/><path d="M0 128c66-40 132-40 198 0s132 40 198 0v93H0z" fill="#61A5C2"/><path d="M0 178c66-34 132-34 198 0s132 34 198 0v43H0z" fill="#A9D6E5"/></svg>
+  <div class="status">Experimental</div><div class="name">Sample Game 4</div><div class="meta mono">3.1.0 / 16.2 GB</div>
+</div>
+<div class="card" style="left: 221px; top: 545px">
+  <svg class="cover" viewBox="0 0 396 221" aria-hidden="true"><rect width="396" height="221" fill="#2C4A32"/><rect x="28" y="30" width="72" height="72" rx="10" fill="#6A994E"/><rect x="118" y="30" width="72" height="72" rx="10" fill="#A7C957"/><rect x="208" y="30" width="72" height="72" rx="10" fill="#6A994E"/><rect x="298" y="30" width="72" height="72" rx="10" fill="#386641"/><rect x="28" y="120" width="72" height="72" rx="10" fill="#386641"/><rect x="118" y="120" width="72" height="72" rx="10" fill="#6A994E"/><rect x="208" y="120" width="72" height="72" rx="10" fill="#F2E8CF"/><rect x="298" y="120" width="72" height="72" rx="10" fill="#6A994E"/></svg>
+  <div class="status">Playable</div><div class="name">Sample Game 5</div><div class="meta mono">1.4.2 / 3.7 GB</div>
+</div>
+<div class="card" style="left: 640px; top: 545px">
+  <svg class="cover" viewBox="0 0 396 221" aria-hidden="true"><rect width="396" height="221" fill="#5C3A1E"/><circle cx="198" cy="248" r="190" fill="#A65E2E"/><circle cx="198" cy="248" r="136" fill="#E08E45"/><circle cx="198" cy="248" r="82" fill="#F8D26A"/></svg>
+  <div class="status">Playable</div><div class="name">Sample Game 6</div><div class="meta mono">1.1.0 / 6.9 GB</div>
+</div>
+<div class="card" style="left: 1059px; top: 545px">
+  <svg class="cover" viewBox="0 0 396 221" aria-hidden="true"><rect width="396" height="221" fill="#1B2430"/><path d="M0 221 124 54l70 94 44-52 158 125z" fill="#3D5A80"/><path d="m124 54 26 35-26 19-22-13zM238 96l22 17-19 17-17-15z" fill="#E0FBFC"/><circle cx="62" cy="48" r="5" fill="#E0FBFC"/><circle cx="330" cy="34" r="4" fill="#E0FBFC"/><circle cx="280" cy="62" r="3" fill="#E0FBFC"/></svg>
+  <div class="status">Experimental</div><div class="name">Sample Game 7</div><div class="meta mono">0.9.5 / 21.3 GB</div>
+</div>
+<div class="card" style="left: 1478px; top: 545px">
+  <svg class="cover" viewBox="0 0 396 221" aria-hidden="true"><rect width="396" height="221" fill="#6B2D5C"/><path d="M0 0h132L0 132zM396 221H264l132-132z" fill="#9E4784"/><rect x="138" y="50" width="120" height="120" rx="60" fill="#F0C3D8"/><rect x="170" y="82" width="56" height="56" rx="28" fill="#6B2D5C"/></svg>
+  <div class="status">In progress</div><div class="name">Sample Game 8</div><div class="meta mono">1.3.0 / 9.8 GB</div>
+</div>
+
+<div class="hints">
+  <span><b class="mono">A</b>Open</span><span><b class="mono">X</b>Start now</span><span><b class="mono">Y</b>Sort</span><span><b class="mono">LB RB</b>Menus</span>
+</div>
+</body>
+</html>

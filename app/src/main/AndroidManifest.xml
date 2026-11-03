@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- hasFragileUserData: uninstalling offers to keep the games and their saves. No predictive back: the host opens its menu on the back gesture, as nx2android's mkapk.py sets it -->
+    <application
+        android:label="Pagurin"
+        android:icon="@drawable/ic_launcher"
+        android:isGame="true"
+        android:appCategory="game"
+        android:hasFragileUserData="true"
+        android:enableOnBackInvokedCallback="false"
+        android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation|screenLayout|density">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!-- The game: its own process (the host ends it with _exit, and holds one game per process) and its own task, so the library stays reachable while it runs -->
+        <activity
+            android:name="android.app.NativeActivity"
+            android:process=":game"
+            android:taskAffinity="io.github.zod701.pagurin.game"
+            android:launchMode="singleTask"
+            android:autoRemoveFromRecents="true"
+            android:exported="false"
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|smallestScreenSize|keyboard|keyboardHidden|navigation|screenLayout|density|uiMode">
+            <meta-data android:name="android.app.lib_name" android:value="pagurin_stub" />
+        </activity>
+        <activity
+            android:name=".DriverPickActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:exported="false"
+            android:screenOrientation="behind"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation|screenLayout|density" />
+        <!-- Shizuku hands its binder to Pagurin through this (ShizukuShell); the permission keeps everyone but the system from calling it -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:multiprocess="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+    </application>
+</manifest>
