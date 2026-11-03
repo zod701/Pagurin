@@ -20,6 +20,10 @@ FEATURES = {
 }
 
 
+for _s in (sys.stdout, sys.stderr):   # a console that cannot show a character (cp949 and adb's own messages) prints it replaced, rather than ending the run
+    try: _s.reconfigure(errors='replace')
+    except (AttributeError, ValueError): pass
+
 def say(*a): print(*a, flush=True)
 
 
