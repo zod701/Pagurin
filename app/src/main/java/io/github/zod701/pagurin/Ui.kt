@@ -188,6 +188,14 @@ fun PagurinApp(store: Store, resumed: Int) = MaterialTheme(colorScheme = darkCol
         else notice = ctx.getString(R.string.takeover_done, p.name)
         confirm = Confirm(ctx.getString(R.string.uninstall_app_confirm, p.pkg), ctx.getString(R.string.uninstall)) { scope.launch { notice = runCatching { withContext(Dispatchers.IO) { store.uninstallApp(p.pkg) }; ctx.getString(R.string.uninstalled, p.pkg) }.getOrElse { ctx.getString(R.string.failed, it.message) } } }
     }
+    // Removing a game from the library: the game only, or its save too. The save stays unless the second choice is made on purpose
+    var removing by remember { mutableStateOf<Game?>(null) }
+    fun askRemove(g: Game) { if (store.runningId() == g.id) notice = ctx.getString(R.string.end_game_first) else removing = g }
+    fun remove(g: Game, keepSave: Boolean) = scope.launch {
+        removing = null; screen = Screen.Library
+        notice = runCatching { withContext(Dispatchers.IO) { store.removeGame(g, keepSave) }; ctx.getString(R.string.removed_game, g.name) }.getOrElse { ctx.getString(R.string.failed, it.message) }
+        refresh++
+    }
     fun stop() { confirm = Confirm(ctx.getString(R.string.stop_game_confirm), ctx.getString(R.string.stop_game)) { scope.launch { store.stopGame(); refresh++ } } }
 
     Row(Modifier.fillMaxSize().background(Ground)) {
@@ -200,7 +208,7 @@ fun PagurinApp(store: Store, resumed: Int) = MaterialTheme(colorScheme = darkCol
                 Screen.Drivers -> DriversScreen(store, drivers, games.orEmpty(), { refresh++ }, { confirm = it }, moveMenu) { screen = Screen.Library }
                 Screen.Settings -> SettingsScreen(store, moveMenu, { refresh++ }) { screen = Screen.Library }
                 is Screen.Detail -> games?.firstOrNull { it.id == s.id }?.let { g ->
-                    DetailScreen(store, g, drivers, icons[g.id], running == g.id, running != null, ::play, ::stop, { refresh++ }, { confirm = it }) { screen = Screen.Library }
+                    DetailScreen(store, g, drivers, icons[g.id], running == g.id, running != null, ::play, ::stop, { refresh++ }, { confirm = it }, ::askRemove) { screen = Screen.Library }
                 }
             }
             if (notice.isNotEmpty()) Label(notice, size = 12, color = Accent, lines = 2)
@@ -226,6 +234,18 @@ fun PagurinApp(store: Store, resumed: Int) = MaterialTheme(colorScheme = darkCol
                 }
             },
             confirmButton = { TextButton({ ports = null }) { Text(stringResource(R.string.close), color = Accent) } })
+    }
+    removing?.let { g ->
+        AlertDialog(onDismissRequest = { removing = null }, containerColor = Panel, title = { Text(stringResource(R.string.remove_game_title, g.name), color = TextMain) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(stringResource(R.string.remove_game_note), color = TextMid, fontSize = 14.sp)
+                    listOf(R.string.remove_keep_save to true, R.string.remove_with_save to false).forEach { (t, keep) ->
+                        Press({ remove(g, keep) }, Modifier.fillMaxWidth(), background = Selected) { Label(stringResource(t), Modifier.padding(horizontal = 12.dp, vertical = 12.dp), size = 15, weight = FontWeight.SemiBold) }
+                    }
+                }
+            },
+            confirmButton = { TextButton({ removing = null }) { Text(stringResource(R.string.cancel), color = Accent) } })
     }
     confirm?.let { c ->
         AlertDialog(onDismissRequest = { confirm = null }, containerColor = Panel, text = { Text(c.text, color = TextMain, fontSize = 15.sp) },
@@ -352,7 +372,7 @@ private fun Cover(g: Game, icon: Bitmap?, modifier: Modifier, monoSize: Int) = B
 
 // ---- game page ----
 @Composable
-private fun ColumnScope.DetailScreen(store: Store, g: Game, drivers: List<Driver>, icon: Bitmap?, isRunning: Boolean, anyRunning: Boolean, play: (Game) -> Unit, stop: () -> Unit, refresh: () -> Unit, ask: (Confirm) -> Unit, back: () -> Unit) {
+private fun ColumnScope.DetailScreen(store: Store, g: Game, drivers: List<Driver>, icon: Bitmap?, isRunning: Boolean, anyRunning: Boolean, play: (Game) -> Unit, stop: () -> Unit, refresh: () -> Unit, ask: (Confirm) -> Unit, remove: (Game) -> Unit, back: () -> Unit) {
     var tab by rememberSaveable0(0); var yAction by remember { mutableStateOf<(() -> Unit)?>(null) }
     val tabs = listOf(stringResource(R.string.tab_overview), stringResource(R.string.tab_settings), stringResource(R.string.tab_saves), stringResource(R.string.tab_log))
     val playFocus = remember { FocusRequester() }
@@ -385,7 +405,7 @@ private fun ColumnScope.DetailScreen(store: Store, g: Game, drivers: List<Driver
     Box(Modifier.weight(1f).fillMaxWidth().padding(top = 6.dp)) {
         when (tab) {
             0 -> OverviewTab(store, g)
-            1 -> SettingsTab(store, g, drivers)
+            1 -> SettingsTab(store, g, drivers, remove)
             2 -> SavesTab(store, g, isRunning, anyRunning, ask, refresh) { yAction = it }
             else -> LogTab(store, g) { yAction = it }
         }
@@ -412,7 +432,7 @@ private fun OverviewTab(store: Store, g: Game) {
 }
 
 @Composable
-private fun SettingsTab(store: Store, g: Game, drivers: List<Driver>) {
+private fun SettingsTab(store: Store, g: Game, drivers: List<Driver>, remove: (Game) -> Unit) {
     // Every row holds the game's own value: there is no default behind it. A press moves to the next choice, round to the first after the last
     var values by remember(g.id) { mutableStateOf(store.values(g)) }
     var driver by remember(g.id) { mutableStateOf(store.driver(g)) }
@@ -432,12 +452,13 @@ private fun SettingsTab(store: Store, g: Game, drivers: List<Driver>) {
     @Composable fun heading(t: String) = Label(t, Modifier.padding(top = 6.dp, bottom = 2.dp, start = 10.dp), 11, TextSub, FontWeight.SemiBold)
     Row(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
         Column(Modifier.weight(1f)) {
-            if (g.settings.isEmpty() && !g.takesDriver) { Label(stringResource(R.string.no_settings), Modifier.padding(10.dp), 14, TextSub, lines = 3); return@Column }
+            if (g.settings.isEmpty() && !g.takesDriver) { Label(stringResource(R.string.no_settings), Modifier.padding(10.dp), 14, TextSub, lines = 3); SmallButton(stringResource(R.string.remove_game), Modifier.padding(10.dp)) { remove(g) }; return@Column }
             if (g.takesDriver || g.settings.any { it.group == R.string.group_graphics }) heading(stringResource(R.string.group_graphics))
             val names = listOf("") + drivers.map { it.name }
             if (g.takesDriver) row(stringResource(R.string.gpu_driver), "driver", driverLabel(driver)) { store.setDriver(g, names[(names.indexOf(driver) + 1) % names.size]); driver = store.driver(g) }
             g.settings.filter { it.group == R.string.group_graphics }.forEach { setting(it) }
             for (grp in listOf(R.string.group_input)) g.settings.filter { it.group == grp }.takeIf { it.isNotEmpty() }?.let { l -> heading(stringResource(grp)); l.forEach { setting(it) } }
+            SmallButton(stringResource(R.string.remove_game), Modifier.padding(start = 10.dp, top = 8.dp)) { remove(g) }
         }
         Column(Modifier.weight(1f)) {
             for (grp in listOf(R.string.group_performance, R.string.group_display, R.string.group_system)) g.settings.filter { it.group == grp }.takeIf { it.isNotEmpty() }?.let { l -> heading(stringResource(grp)); l.forEach { setting(it) } }

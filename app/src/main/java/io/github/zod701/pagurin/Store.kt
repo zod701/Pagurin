@@ -14,6 +14,7 @@ import android.provider.MediaStore
 import androidx.annotation.StringRes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlin.concurrent.thread
 import org.json.JSONObject
 import java.io.File
 import java.security.SecureRandom
@@ -51,7 +52,7 @@ class Store(private val context: Context) {
 
     // ---- games ----
     // A game folder is a game of the first kind whose manifest it holds
-    fun games(): List<Game> = gamesDir.listFiles().orEmpty().filter { it.isDirectory }.mapNotNull { dir ->
+    fun games(): List<Game> = gamesDir.listFiles().orEmpty().filter { it.isDirectory && !it.name.startsWith(".") }.mapNotNull { dir ->
         val adapter = ADAPTERS.firstOrNull { File(dir, it.manifest).isFile } ?: return@mapNotNull null
         runCatching {
             val j = JSONObject(File(dir, adapter.manifest).readText())
@@ -60,6 +61,20 @@ class Store(private val context: Context) {
                 p?.optInt("format") ?: 0, f?.let { a -> (0 until a.length()).map { a.getString(it) }.toSet() }, adapter, hostKnows(dir, adapter), adapter.gameSettings(j)).also { settle(it) }
         }.getOrNull()
     }.sortedBy { it.name }
+
+    // Removes a game: its folder leaves the library at once, by a rename, and is deleted behind it (hundreds of thousands of files take minutes; what an ended app
+    // left is finished at the next start). keepSave: the save stays in internal storage, so the game goes on from it when it is added again
+    fun removeGame(game: Game, keepSave: Boolean) {
+        val gone = File(gamesDir, ".removing-${game.id}-${System.currentTimeMillis()}")
+        check(game.dir.renameTo(gone)) { "cannot move ${game.dir}" }
+        val inner = File(context.filesDir, "games/${game.id}")
+        if (keepSave) inner.listFiles().orEmpty().filter { !it.name.startsWith("save") }.forEach { it.deleteRecursively() } else inner.deleteRecursively()
+        pinFile(game).delete(); File(context.filesDir, "hostknows/${game.id}.json").delete()
+        thread { gone.deleteRecursively() }
+    }
+
+    private fun finishRemoving() = thread { gamesDir.listFiles().orEmpty().filter { it.name.startsWith(".removing-") }.forEach { it.deleteRecursively() } }
+    init { finishRemoving() }
 
     // What the game's host reads, found in its library once and kept in internal storage until the library changes (a new import, a newer port)
     private fun hostKnows(dir: File, adapter: Adapter): Set<String>? {

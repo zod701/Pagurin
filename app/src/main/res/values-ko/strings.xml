@@ -159,4 +159,10 @@
     <string name="uninstalled">%1$s 앱을 삭제했습니다.</string>
     <string name="used_by">사용 중: %1$s</string>
     <string name="not_used">쓰는 게임 없음</string>
+    <string name="remove_game_title">%1$s 삭제</string>
+    <string name="remove_game_note">게임 데이터, 내보낸 세이브, 이 게임의 설정을 지웁니다. 되돌릴 수 없습니다. 세이브를 유지하면 다시 추가했을 때 이어서 플레이할 수 있습니다.</string>
+    <string name="remove_keep_save">게임만 삭제 (세이브 유지)</string>
+    <string name="remove_with_save">세이브까지 모두 삭제</string>
+    <string name="removed_game">%1$s을(를) 삭제했습니다. 여유 공간은 잠시 뒤에 늘어납니다.</string>
+    <string name="remove_game">게임 삭제</string>
 </resources>

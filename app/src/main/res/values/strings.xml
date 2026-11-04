@@ -159,4 +159,10 @@
     <string name="uninstalled">Uninstalled %1$s.</string>
     <string name="used_by">Used by %1$s</string>
     <string name="not_used">Not used by any game</string>
+    <string name="remove_game_title">Delete %1$s</string>
+    <string name="remove_game_note">This deletes the game\'s data, its exported saves and its settings. It cannot be undone. A kept save lets you go on from it if you add the game again.</string>
+    <string name="remove_keep_save">Delete the game only (keep the save)</string>
+    <string name="remove_with_save">Delete the save too</string>
+    <string name="removed_game">Deleted %1$s. Free space goes up in a moment.</string>
+    <string name="remove_game">Delete game</string>
 </resources>
