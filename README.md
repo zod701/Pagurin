@@ -6,12 +6,14 @@ Pagurin keeps your Android ports of games from other platforms in one app. You g
 
 Right now it runs ports made with [nx2android](https://github.com/shirai91/nx2android). It uses that project's output as it is and doesn't modify the engine. There are no games in this repository; you port your own.
 
+Pagurin follows nx2android's main branch. Choosing a GPU driver needs a port made from it on 2026-11-03 or later; an older port still runs, on the system's driver.
+
 ## Features
 
 - A library with search and sorting.
 - Settings for each game: docked or handheld mode, the on-screen gamepad, rumble, the frame rate counter and the engine's performance switches. A game only shows the settings its own host reads.
 - One game language for every game. A game that doesn't have it runs in English.
-- GPU drivers, added from a file and picked per game.
+- GPU drivers picked per game. By default a game uses the driver its port was made with (`porter port --vulkan-driver`), or the system's if there isn't one. You can also pick the system's driver or one you added from a file.
 - Save export, import and delete. Import also takes another app's save folder (an emulator's, say) or a zip.
 - Games added from a PC with the import tool, or moved over from ports installed as their own apps.
 
@@ -31,7 +33,7 @@ pagurin-import <App>.apk <App>-data [--serial <serial>]
 
 If you have Python 3.9 or later, `python tools/pagurin_import.py` does the same thing on any system. Either way it needs `adb`, which it looks for on `PATH` and in the Android SDK's usual folder (`--adb` points it somewhere else).
 
-Before sending anything, the tool checks that the port is complete, that the device is arm64 with a GPU that can read the game's textures, and that there's enough free space. Use `--check` to run only the checks. The game appears in the library once the transfer finishes, and running the tool again only sends what changed.
+Before sending anything, the tool checks that the port is complete, that the device is arm64 with a GPU that can read the game's textures, and that there's enough free space. Use `--check` to run only the checks. The game appears in the library once the transfer finishes. Running the tool again only sends what changed and removes files an older port of the game left behind.
 
 A port contains code that runs inside Pagurin. Adding someone else's port is like installing an app from them, and that app can touch your games and saves. Port your own games, or only use ports from people you trust. Pagurin does ask before running code that changed since a game last started.
 

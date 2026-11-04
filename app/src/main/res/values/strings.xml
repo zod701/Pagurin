@@ -105,7 +105,7 @@
     <string name="error_create_file">Cannot create the file</string>
     <string name="error_open_file">Cannot open the file</string>
 
-    <string name="delete_driver_confirm">Delete the driver %1$s? Games that use it go back to the default.</string>
+    <string name="delete_driver_confirm">Delete the driver %1$s? Games that use it go back to their own driver.</string>
     <string name="add_from_file">Add from a file</string>
     <string name="system_driver_note">The driver installed on the device</string>
     <string name="drivers_note">Add or delete GPU drivers. A game\'s driver is chosen in its settings tab and applies from its next start.</string>
