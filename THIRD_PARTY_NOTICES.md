@@ -9,6 +9,7 @@ Pagurin itself is MIT ([LICENSE](LICENSE)). What it is built with and ships:
 | [Shizuku API](https://github.com/RikkaApps/Shizuku-API) (`dev.rikka.shizuku:api`, `provider`) | Apache License 2.0 |
 | [AndroidX](https://developer.android.com/jetpack/androidx) and [Jetpack Compose](https://developer.android.com/jetpack/compose) | Apache License 2.0 |
 | [Kotlin](https://kotlinlang.org/) standard library and [kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines) | Apache License 2.0 |
+| [libadrenotools](https://github.com/bylaws/libadrenotools) and linkernsbypass (`stub/third_party/libadrenotools`, nx2android's copy), which load a GPU driver the person added | BSD 2-Clause ([LICENSE](stub/third_party/libadrenotools/LICENSE)) |
 
 The text of the Apache License 2.0 is at <https://www.apache.org/licenses/LICENSE-2.0>.
 

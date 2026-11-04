@@ -16,12 +16,12 @@ class AdaptersTest {
     }
 
     @Test fun anOlderHostHidesWhatItDoesNotRead() {
-        val known = Nx2Android.hostKnows(host("docked=%d", "overlay=%d", "rumble=%d", "DM_VK_SETSPLIT", "driver="))
+        val known = Nx2Android.hostKnows(host("docked=%d", "overlay=%d", "rumble=%d", "DM_VK_SETSPLIT", "DM_VK_DRIVER"))
         assertEquals(setOf("docked", "overlay", "rumble", "DM_VK_SETSPLIT", "driver"), known)
     }
 
     @Test fun aHostWithEverythingShowsEverything() {
-        val known = Nx2Android.hostKnows(host(*(Nx2Android.settings.map { it.marker } + "driver=").toTypedArray()))
+        val known = Nx2Android.hostKnows(host(*(Nx2Android.settings.map { it.marker } + "DM_VK_DRIVER").toTypedArray()))
         assertEquals(Nx2Android.settings.map { it.key }.toSet() + "driver", known)
     }
 

@@ -73,9 +73,11 @@ static AAssetManager *apk_assets(ANativeActivity *a, const char *apk) {
 
 // src over dst when their size or time differs. Read-only once whole: a library the app loads must not be writable (W^X), and a rename replaces it all the same
 // The host the app put in internal storage after checking it (Store.stageCode), never the copy on shared storage, which other writers can reach.
-// adrenotools' hooks are beside it: the host finds them there (gfx_vk_core.c vk_open_driver)
+// libadrenotools, when it is there, is loaded first: the host asks for it by bare name (gfx_vk_core.c vk_init), which finds a library already loaded and not this folder
 static on_create_fn load_host(const char *in) {
-    char dst[1024]; snprintf(dst, sizeof dst, "%s/host/libdmhost.so", in);
+    char dst[1024]; snprintf(dst, sizeof dst, "%s/host/libadrenotools.so", in);
+    if (!access(dst, R_OK) && !dlopen(dst, RTLD_NOW | RTLD_LOCAL)) LOGE("dlopen %s: %s", dst, dlerror());
+    snprintf(dst, sizeof dst, "%s/host/libdmhost.so", in);
     void *h = dlopen(dst, RTLD_NOW | RTLD_LOCAL);
     if (!h) { LOGE("dlopen %s: %s", dst, dlerror()); return NULL; }
     on_create_fn f = (on_create_fn)dlsym(h, "ANativeActivity_onCreate");
@@ -89,9 +91,6 @@ __attribute__((visibility("default"))) void ANativeActivity_onCreate(ANativeActi
         char id[65], p[1024];
         // Without a game no game runs: finished when resumed, as finish() from onCreate leaves it on the screen
         if (!intent_game(a, id)) { LOGI("no game_id: nothing to run"); a->callbacks->onResume = finish_on_resume; return; }
-        // One folder of GPU drivers for every game, the one the driver picker fills; the host keeps a value already set (front_android.c)
-        snprintf(p, sizeof p, "%s/drivers", a->externalDataPath); mkdirs(p); setenv("DM_VK_DRIVER_ROOT", p, 1);
-        snprintf(p, sizeof p, "%s/drivers", a->internalDataPath); mkdirs(p); setenv("DM_VK_DRIVER_CACHE", p, 1);
         snprintf(p, sizeof p, "%s/games/%s", a->externalDataPath, id); ext = strdup(p);
         snprintf(p, sizeof p, "%s/games/%s", a->internalDataPath, id); in = strdup(p); mkdirs(in);
         host = load_host(in);

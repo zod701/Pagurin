@@ -12,11 +12,12 @@ PACKAGE = 'io.github.zod701.pagurin'
 FORMAT = 1   # what Pagurin reads from a game folder; the app refuses a game of a later format (Store.SUPPORTED_FORMAT)
 CHUNK = 64 << 20   # big files go in pieces joined on the device: one long transfer can wedge adbd
 LONG_PATH = 240    # adb on Windows cannot open a path past 260 characters
+OWNED = ('host', 'mods', 'RomFS', 'aoc')   # folders only the port fills
 
 # Host features Pagurin uses, found by text in the host library (a host carries no version number)
 FEATURES = {
     'saves': (b'import.txt', b'export.txt', b'result.txt'),   # the save manager the saves tab asks
-    'drivers': (b'DM_VK_DRIVER_ROOT', b'DM_VK_DRIVER_CACHE'),  # a drivers folder Pagurin names, shared by every game
+    'drivers': (b'DM_VK_DRIVER',),   # a GPU driver named in env.txt
 }
 
 
@@ -173,7 +174,7 @@ def main():
     elif b'ANativeActivity_onCreate' not in host: problems.append('the host library has no entry point Pagurin can start')
     features = sorted(f for f, marks in FEATURES.items() if host and all(m in host for m in marks))
     if host and 'saves' not in features: warnings.append('this host has no save manager: the saves tab cannot export or import (port the game again with a newer tool)')
-    if host and 'drivers' not in features: warnings.append('this host does not take a drivers folder: GPU drivers chosen in Pagurin do not reach it')
+    if host and 'drivers' not in features: warnings.append('this host does not take a GPU driver by name: drivers chosen in Pagurin do not reach it')
     title = man.get('title_id', '')
     if not title.isalnum(): problems.append('nx2a-data.json has no usable game ID')
     profile = [a.profile, a.apk.parent / f'{title}_build/profile' / title]
@@ -226,6 +227,10 @@ def main():
         (stage / 'settings.default.txt').write_text(''.join(r + '\n' for r in rows), encoding='utf-8', newline='\n')   # what the settings screen shows and resets to
         dev.push_tree(stage, remote, by_content=by_content)
         dev.push_tree(a.data, remote, skip={'env.txt', 'nx2a-data.json'}, keep={'settings.txt'}, by_content=by_content)
+        # What an older port left in the folders the port owns: the game would still find its files, and the host would load its libraries (as porter's install.py does)
+        stale = [r for r in dev.sizes(remote) if r.split('/', 1)[0] in OWNED and not (a.data / r).is_file() and not (stage / r).is_file()]
+        for i in range(0, len(stale), 64): dev.sh(f'cd {shlex.quote(remote)} && rm -f ' + ' '.join(shlex.quote(r) for r in stale[i:i + 64]))
+        if stale: say(f'{len(stale):,} files of an older port removed')
         status = profile_key(profile, 'android.tsv', 'status') or 'experimental'
         man.update(package=PACKAGE, status=status, pagurin={'format': FORMAT, 'features': features, 'warnings': warnings, **({'languages': languages} if languages else {})})
         (stage / 'nx2a-data.json').write_text(json.dumps(man, indent=2), encoding='utf-8')

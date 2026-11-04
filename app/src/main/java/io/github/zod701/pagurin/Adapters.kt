@@ -58,7 +58,7 @@ object Nx2Android : Adapter {
     override val kind = "nx2android"
     override val manifest = "nx2a-data.json"
     override val saves = SaveMode.HOST_REQUEST
-    override val driverMarker = "driver="
+    override val driverMarker = "DM_VK_DRIVER"
     override val settings = listOf(
         Setting("docked", R.string.setting_docked, R.string.group_graphics, false, listOf(Choice("0", R.string.mode_handheld), Choice("1", R.string.mode_docked)), "docked=%d"),
         Setting("overlay", R.string.setting_overlay, R.string.group_input, false, listOf(Choice("1", R.string.overlay_show), Choice("0", R.string.overlay_hide)), "overlay=%d"),

@@ -47,7 +47,6 @@
     <string name="hint_import">Import</string>
     <string name="hint_delete">Delete</string>
     <string name="hint_save_txt">Save as txt</string>
-    <string name="hint_tabs">Tabs</string>
     <string name="hint_select">Select</string>
 
     <string name="info_status">%1$s status</string>
@@ -162,4 +161,6 @@
     <string name="remove_keep_save">Delete the game only (keep the save)</string>
     <string name="remove_with_save">Delete the save too</string>
     <string name="remove_game">Delete game</string>
+    <string name="game_driver">The game\'s own driver</string>
+    <string name="game_driver_note">The driver the port brought, or else the system\'s</string>
 </resources>

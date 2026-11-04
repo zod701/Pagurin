@@ -92,7 +92,7 @@ private val ScreenSaver = Saver<Screen, String>(
 private data class Confirm(val text: String, val yes: String, val action: () -> Unit)
 
 private fun size(b: Long) = if (b >= 1L shl 30) "%.1f GB".format(b / (1L shl 30).toDouble()) else "%.1f MB".format(b / (1L shl 20).toDouble())
-@Composable private fun driverLabel(n: String) = n.ifEmpty { stringResource(R.string.system_driver) }
+@Composable private fun driverLabel(n: String) = when (n) { "" -> stringResource(R.string.game_driver); SYSTEM_DRIVER -> stringResource(R.string.system_driver); else -> n }
 @Composable private fun choiceLabel(c: Choice) = if (c.label != 0) stringResource(c.label) else c.text
 
 // The one clickable surface: the focus ring is what a controller player steers by
@@ -410,11 +410,13 @@ private fun ColumnScope.DetailScreen(store: Store, g: Game, drivers: List<Driver
             else -> LogTab(store, g) { yAction = it }
         }
     }
+    // Every tab in one order: A, Y, B. LB and RB are shown on the tab bar
+    val backHint = "B" to stringResource(R.string.hint_back)
     when (tab) {
-        1 -> Hints("A" to stringResource(R.string.hint_change), "B" to stringResource(R.string.hint_back), start = stringResource(R.string.hint_next_start))
-        2 -> Hints("A" to stringResource(R.string.hint_import), "Y" to stringResource(R.string.hint_delete), "B" to stringResource(R.string.hint_back))
-        3 -> Hints("Y" to stringResource(R.string.hint_save_txt), "LB RB" to stringResource(R.string.hint_tabs), "B" to stringResource(R.string.hint_back))
-        else -> Hints("A" to stringResource(R.string.hint_select), "LB RB" to stringResource(R.string.hint_tabs), "B" to stringResource(R.string.hint_back))
+        1 -> Hints("A" to stringResource(R.string.hint_change), backHint, start = stringResource(R.string.hint_next_start))
+        2 -> Hints("A" to stringResource(R.string.hint_import), "Y" to stringResource(R.string.hint_delete), backHint)
+        3 -> Hints("Y" to stringResource(R.string.hint_save_txt), backHint)
+        else -> Hints("A" to stringResource(R.string.hint_select), backHint)
     }
 }
 
@@ -454,7 +456,7 @@ private fun SettingsTab(store: Store, g: Game, drivers: List<Driver>, remove: (G
         Column(Modifier.weight(1f)) {
             if (g.settings.isEmpty() && !g.takesDriver) { Label(stringResource(R.string.no_settings), Modifier.padding(10.dp), 14, TextSub, lines = 3); SmallButton(stringResource(R.string.remove_game), Modifier.padding(10.dp)) { remove(g) }; return@Column }
             if (g.takesDriver || g.settings.any { it.group == R.string.group_graphics }) heading(stringResource(R.string.group_graphics))
-            val names = listOf("") + drivers.map { it.name }
+            val names = listOf("", SYSTEM_DRIVER) + drivers.map { it.name }
             if (g.takesDriver) row(stringResource(R.string.gpu_driver), "driver", driverLabel(driver)) { store.setDriver(g, names[(names.indexOf(driver) + 1) % names.size]); driver = store.driver(g) }
             g.settings.filter { it.group == R.string.group_graphics }.forEach { setting(it) }
             for (grp in listOf(R.string.group_input)) g.settings.filter { it.group == grp }.takeIf { it.isNotEmpty() }?.let { l -> heading(stringResource(grp)); l.forEach { setting(it) } }
@@ -552,7 +554,7 @@ private fun ColumnScope.DriversScreen(store: Store, drivers: List<Driver>, games
     fun delete(n: String) = ask(Confirm(context.getString(R.string.delete_driver_confirm, n), context.getString(R.string.delete)) {
         val names = store.drivers().map { it.name }; val at = names.indexOf(n); val left = names - n   // read now: this closure can outlive the list it was composed with, and a row already gone can take no focus
         store.deleteDriver(n); focused = null; deleted = n; refresh()
-        moveFocus = left.getOrNull(at) ?: left.lastOrNull() ?: ""   // the row that took its place, the new last one, or the system's driver, which can't be deleted
+        moveFocus = left.getOrNull(at) ?: left.lastOrNull() ?: SYSTEM_DRIVER   // the row that took its place, the new last one, or the system's driver, which can't be deleted
     })
     // Once the row has left the list, which comes back from another thread: removing the focused row moves the focus, over anything asked before that
     LaunchedEffect(moveFocus, drivers) { moveFocus?.let { n -> if (drivers.none { it.name == deleted }) { delay(150); runCatching { (rowFocus[n] ?: first).requestFocus() }; moveFocus = null } } }
@@ -560,7 +562,7 @@ private fun ColumnScope.DriversScreen(store: Store, drivers: List<Driver>, games
     SideEffect { Keys.handler = { k -> when (k) {
         KeyEvent.KEYCODE_BUTTON_L1 -> { moveMenu(-1); true }
         KeyEvent.KEYCODE_BUTTON_R1 -> { moveMenu(1); true }
-        KeyEvent.KEYCODE_BUTTON_Y -> { focused?.takeIf { it.isNotEmpty() }?.let(::delete); true }
+        KeyEvent.KEYCODE_BUTTON_Y -> { focused?.takeIf { it.isNotEmpty() && it != SYSTEM_DRIVER }?.let(::delete); true }
         else -> false } } }
     LaunchedEffect(Unit) { runCatching { first.requestFocus() } }
     Row(Modifier.fillMaxWidth().height(44.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -570,12 +572,12 @@ private fun ColumnScope.DriversScreen(store: Store, drivers: List<Driver>, games
     }
     Column(Modifier.weight(1f).padding(top = 8.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Label(stringResource(R.string.drivers_note), size = 12, color = TextSub, lines = 2)
-        (listOf(Driver("", 0)) + drivers).forEachIndexed { i, d -> key(d.name) {   // by name: see the saves tab
+        (listOf(Driver("", 0), Driver(SYSTEM_DRIVER, 0)) + drivers).forEachIndexed { i, d -> key(d.name) {   // by name: see the saves tab
             val users = usedBy[d.name].orEmpty()
             Press({}, Modifier.fillMaxWidth().heightIn(min = 52.dp), background = Panel, border = BorderStroke(1.dp, Line),
                 requester = if (i == 0) first else rowFocus.getOrPut(d.name) { FocusRequester() }, onFocus = { f -> if (f) focused = d.name else if (focused == d.name) focused = null }) {
                 Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                    Column(Modifier.weight(1f)) { Label(driverLabel(d.name), size = 13, weight = FontWeight.Medium, mono = d.name.isNotEmpty()); Label(if (d.name.isEmpty()) stringResource(R.string.system_driver_note) else size(d.bytes), size = 11, color = TextSub) }
+                    Column(Modifier.weight(1f)) { Label(driverLabel(d.name), size = 13, weight = FontWeight.Medium, mono = d.name.isNotEmpty() && d.name != SYSTEM_DRIVER); Label(when (d.name) { "" -> stringResource(R.string.game_driver_note); SYSTEM_DRIVER -> stringResource(R.string.system_driver_note); else -> size(d.bytes) }, size = 11, color = TextSub) }
                     Label(if (users.isEmpty()) stringResource(R.string.not_used) else stringResource(R.string.used_by, users.joinToString(", ") { it.name }), Modifier.weight(1f), 12, if (users.isEmpty()) TextSub else TextMain, lines = 2)
                 }
             }

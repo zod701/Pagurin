@@ -42,12 +42,13 @@ data class SaveFolder(val name: String, val bytes: Long, val time: Long)
 
 private const val BLOCK_START = "# pagurin begin"
 private const val BLOCK_END = "# pagurin end"
+const val SYSTEM_DRIVER = "@system"   // a game's driver: the device's, even where its port brought its own
+private val ADRENOTOOLS = listOf("libadrenotools.so", "libhook_impl.so", "libmain_hook.so", "libfile_redirect_hook.so", "libgsl_alloc_hook.so")
 
 class Store(private val context: Context) {
     private val files: File = context.getExternalFilesDir(null) ?: context.filesDir
     private val gamesDir = File(files, "games")
     val driversDir = File(files, "drivers").apply { mkdirs() }
-    private val globalFile = File(files, "pagurin.json")
     private val runningFile = File(context.filesDir, "running.txt")
 
     // ---- games ----
@@ -107,7 +108,7 @@ class Store(private val context: Context) {
         val j = gameJson(game.dir); j.put("values", (j.optJSONObject("values") ?: JSONObject()).put(key, value)); writeJson(File(game.dir, "pagurin.json"), j)
     }
 
-    fun driver(game: Game): String = gameJson(game.dir).optString("driver")   // "" is the system's
+    fun driver(game: Game): String = gameJson(game.dir).optString("driver")   // "" the game's own, SYSTEM_DRIVER the device's, else a package of drivers/
 
     fun setDriver(game: Game, name: String) { val j = gameJson(game.dir).put("driver", name); writeJson(File(game.dir, "pagurin.json"), j) }
 
@@ -134,12 +135,11 @@ class Store(private val context: Context) {
             for (k in applied.keys().asSequence().toList()) {
                 val n = now[k] ?: continue
                 if (n == applied.optString(k)) continue
-                if (k == "driver") j.put("driver", n) else v.put(k, n)
+                if (k != "driver") v.put(k, n)   // (the host read a driver row before it took one from env.txt)
                 applied.put(k, n); changed = true
             }
         }
         for (s in game.settings) if (!v.has(s.key)) { v.put(s.key, if (s.key == game.adapter.languageKey && gameLanguage().isNotEmpty()) pickLanguage(s, gameLanguage()) else runsWith(game, s)); changed = true }
-        if (!j.has("driver")) { j.put("driver", legacyDefaultDriver()); changed = true }   // what an earlier version's default driver gave it
         if (changed) { j.put("values", v); writeJson(File(game.dir, "pagurin.json"), j) }
     }
 
@@ -154,14 +154,11 @@ class Store(private val context: Context) {
     }
 
 
-    // ---- drivers: "" is the system's ----
+    // ---- drivers: packages the person added, each game's choice among them, its own (""), or the device's (SYSTEM_DRIVER) ----
     fun drivers(): List<Driver> = driversDir.listFiles().orEmpty().filter { it.isFile && it.name.endsWith(".zip") && !it.name.startsWith(".") }
         .map { Driver(it.name.removeSuffix(".zip"), it.length()) }.sortedBy { it.name.lowercase() }
 
-    // An earlier version had one default driver for the games without their own: it is each such game's driver now
-    private fun legacyDefaultDriver(): String = runCatching { JSONObject(globalFile.readText()).optString("driver") }.getOrDefault("").takeIf { it.isEmpty() || File(driversDir, "$it.zip").isFile } ?: ""
-
-    // A game that used the driver goes to the system's
+    // A game that used the driver goes back to its own
     fun deleteDriver(name: String) {
         File(driversDir, "$name.zip").delete()
         games().filter { driver(it) == name }.forEach { setDriver(it, "") }
@@ -231,20 +228,38 @@ class Store(private val context: Context) {
     private fun applySettings(game: Game) {
         settle(game)
         val chosen = values(game)
-        val driver = driver(game).takeIf { it.isEmpty() || File(driversDir, "$it.zip").isFile } ?: ""
-        val sets = game.settings.filter { !it.inEnv && it.key in chosen }.associate { it.key to chosen.getValue(it.key) } + ("driver" to driver)
+        val sets = game.settings.filter { !it.inEnv && it.key in chosen }.associate { it.key to chosen.getValue(it.key) }
         val j = gameJson(game.dir); j.put("applied", JSONObject(sets)); writeJson(File(game.dir, "pagurin.json"), j)
         val settings = File(game.dir, "settings.txt")
-        val kept = runCatching { settings.readLines() }.getOrDefault(emptyList()).filter { ln -> sets.keys.none { ln.startsWith("$it=") } }
+        val kept = runCatching { settings.readLines() }.getOrDefault(emptyList()).filter { ln -> !ln.startsWith("driver=") && sets.keys.none { ln.startsWith("$it=") } }
         replace(settings, (kept + sets.map { "${it.key}=${it.value}" }).joinToString("\n", postfix = "\n"))
 
         val env = File(game.dir, "env.txt"); val out = mutableListOf<String>(); var inside = false
         for (ln in runCatching { env.readLines() }.getOrDefault(emptyList())) {
             if (ln == BLOCK_START) inside = true else if (ln == BLOCK_END) inside = false else if (!inside) out += ln
         }
-        val rows = game.settings.filter { it.inEnv && it.key in chosen }.map { "${it.key}=${chosen.getValue(it.key)}" }
+        val rows = game.settings.filter { it.inEnv && it.key in chosen }.map { "${it.key}=${chosen.getValue(it.key)}" } + listOfNotNull(driverRow(game))
         if (rows.isNotEmpty()) out += listOf(BLOCK_START) + rows + BLOCK_END   // last: the app reads env.txt in order, so these win over the profile's
         replace(env, out.joinToString("\n", postfix = "\n"))
+    }
+
+    // The env.txt row for the game's driver, null to leave the port's own as it is. The host loads a driver by name from its own folder, through libadrenotools and its
+    // hooks beside it (nx2android gfx_vk_core.c vk_init), and an empty name is the device's driver. A port made with a driver brought those libraries; for any other
+    // they come from this app, which builds them (stub/CMakeLists.txt). The host folder was made anew for this start (commitCode)
+    private fun driverRow(game: Game): String? {
+        if (!game.takesDriver) return null
+        val name = driver(game)
+        if (name == SYSTEM_DRIVER) return "DM_VK_DRIVER="
+        val zip = File(driversDir, "$name.zip").takeIf { name.isNotEmpty() && it.isFile } ?: return null
+        val host = File(context.filesDir, "games/${game.id}/host")
+        for (lib in ADRENOTOOLS) File(host, lib).takeIf { !it.exists() }?.let { File(context.applicationInfo.nativeLibraryDir, lib).copyTo(it); it.setWritable(false, false) }
+        return "DM_VK_DRIVER=" + ZipFile(zip).use { z ->
+            val libs = z.entries().asSequence().filter { !it.isDirectory && it.name.endsWith(".so") }.toList()
+            check(libs.isNotEmpty()) { context.getString(R.string.picker_not_driver) }
+            for (e in libs) File(host, e.name.substringAfterLast('/')).let { f -> f.delete(); z.getInputStream(e).use { i -> f.outputStream().use { i.copyTo(it) } }; f.setWritable(false, false) }
+            val named = z.getEntry("meta.json")?.let { m -> runCatching { JSONObject(z.getInputStream(m).use { it.readBytes().decodeToString() }).optString("libraryName") }.getOrNull() }
+            named?.takeIf { n -> libs.any { it.name.substringAfterLast('/') == n } } ?: libs.first().name.substringAfterLast('/')
+        }
     }
 
     // ---- saves: the host's save manager, asked through a file (nx2android: saves_android.c, porter/saves.py) ----
@@ -432,7 +447,7 @@ class Store(private val context: Context) {
         val rows = runCatching { File(dest, "settings.txt").readLines() }.getOrDefault(emptyList()).filter { '=' in it && !it.startsWith("ui=") && !it.startsWith("driver=") }
         replace(File(dest, "settings.default.txt"), (rows + listOfNotNull("docked=1".takeIf { rows.none { it.startsWith("docked=") } })).joinToString("\n", postfix = "\n"))
         val man = JSONObject(File(dest, "nx2a-data.json").readText())
-        val features = listOfNotNull("saves".takeIf { has("import.txt", "export.txt", "result.txt") }, "drivers".takeIf { has("DM_VK_DRIVER_ROOT", "DM_VK_DRIVER_CACHE") })
+        val features = listOfNotNull("saves".takeIf { has("import.txt", "export.txt", "result.txt") }, "drivers".takeIf { has("DM_VK_DRIVER") })
         man.put("package", context.packageName).put("status", man.optString("status", "experimental").ifEmpty { "experimental" })
             .put("pagurin", JSONObject().put("format", SUPPORTED_FORMAT).put("features", org.json.JSONArray(features)).put("warnings", org.json.JSONArray()).put("from_app", port.pkg))
         replace(File(dest, "nx2a-data.json"), man.toString(2))
