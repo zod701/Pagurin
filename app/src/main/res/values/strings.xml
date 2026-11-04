@@ -85,7 +85,6 @@
 
     <string name="delete_save_confirm">Delete the save %1$s? This cannot be undone. The game\'s current save is not deleted.</string>
     <string name="delete">Delete</string>
-    <string name="save_deleted">Deleted the save %1$s.</string>
     <string name="save_delete_failed">Could not delete the save %1$s.</string>
     <string name="end_game_first">End the game first.</string>
     <string name="action_working">%1$s in progress…</string>
@@ -156,13 +155,11 @@
     <string name="shizuku_needed">Adding from installed apps needs Shizuku. Install and start Shizuku, then try again.</string>
     <string name="shizuku_denied">Shizuku was not allowed. Allow Pagurin in the Shizuku app.</string>    <string name="uninstall_app_confirm">Uninstall %1$s? It no longer has its game data.</string>
     <string name="uninstall">Uninstall</string>
-    <string name="uninstalled">Uninstalled %1$s.</string>
     <string name="used_by">Used by %1$s</string>
     <string name="not_used">Not used by any game</string>
     <string name="remove_game_title">Delete %1$s</string>
     <string name="remove_game_note">This deletes the game\'s data, its exported saves and its settings. It cannot be undone. A kept save lets you go on from it if you add the game again.</string>
     <string name="remove_keep_save">Delete the game only (keep the save)</string>
     <string name="remove_with_save">Delete the save too</string>
-    <string name="removed_game">Deleted %1$s. Free space goes up in a moment.</string>
     <string name="remove_game">Delete game</string>
 </resources>

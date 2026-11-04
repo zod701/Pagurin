@@ -186,14 +186,14 @@ fun PagurinApp(store: Store, resumed: Int) = MaterialTheme(colorScheme = darkCol
         if (save != null) { notice = ctx.getString(R.string.action_working, ctx.getString(R.string.action_import)); val kv = store.importSave(g, save)
             notice = if (kv["result"] == "ok") ctx.getString(R.string.takeover_done, p.name) else ctx.getString(R.string.action_failed, ctx.getString(R.string.action_import), kv["error"] ?: "") }
         else notice = ctx.getString(R.string.takeover_done, p.name)
-        confirm = Confirm(ctx.getString(R.string.uninstall_app_confirm, p.pkg), ctx.getString(R.string.uninstall)) { scope.launch { notice = runCatching { withContext(Dispatchers.IO) { store.uninstallApp(p.pkg) }; ctx.getString(R.string.uninstalled, p.pkg) }.getOrElse { ctx.getString(R.string.failed, it.message) } } }
+        confirm = Confirm(ctx.getString(R.string.uninstall_app_confirm, p.pkg), ctx.getString(R.string.uninstall)) { scope.launch { notice = runCatching { withContext(Dispatchers.IO) { store.uninstallApp(p.pkg) }; "" }.getOrElse { ctx.getString(R.string.failed, it.message) } } }
     }
     // Removing a game from the library: the game only, or its save too. The save stays unless the second choice is made on purpose
     var removing by remember { mutableStateOf<Game?>(null) }
     fun askRemove(g: Game) { if (store.runningId() == g.id) notice = ctx.getString(R.string.end_game_first) else removing = g }
     fun remove(g: Game, keepSave: Boolean) = scope.launch {
         removing = null; screen = Screen.Library
-        notice = runCatching { withContext(Dispatchers.IO) { store.removeGame(g, keepSave) }; ctx.getString(R.string.removed_game, g.name) }.getOrElse { ctx.getString(R.string.failed, it.message) }
+        notice = runCatching { withContext(Dispatchers.IO) { store.removeGame(g, keepSave) }; "" }.getOrElse { ctx.getString(R.string.failed, it.message) }
         refresh++
     }
     fun stop() { confirm = Confirm(ctx.getString(R.string.stop_game_confirm), ctx.getString(R.string.stop_game)) { scope.launch { store.stopGame(); refresh++ } } }
@@ -476,7 +476,7 @@ private fun SavesTab(store: Store, g: Game, isRunning: Boolean, anyRunning: Bool
             val n = focused
             if (n != null && !busy) ask(Confirm(ctx.getString(R.string.delete_save_confirm, n), ctx.getString(R.string.delete)) {
                 val at = list.indexOfFirst { it.name == n }
-                message = ctx.getString(if (store.deleteSave(g, n)) R.string.save_deleted else R.string.save_delete_failed, n)
+                message = if (store.deleteSave(g, n)) "" else ctx.getString(R.string.save_delete_failed, n)
                 focused = null; list = store.saves(g)
                 moveFocus = (list.getOrNull(at) ?: list.lastOrNull())?.name ?: ""   // the row that took its place, the new last one, or with none left the export button
             })
