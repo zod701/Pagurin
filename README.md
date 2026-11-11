@@ -35,6 +35,8 @@ If you have Python 3.9 or later, `python tools/pagurin_import.py` does the same 
 
 Before sending anything, the tool checks that the port is complete, that the device is arm64 with a GPU that can read the game's textures, and that there's enough free space. Use `--check` to run only the checks. The game appears in the library once the transfer finishes. Running the tool again only sends what changed and removes files an older port of the game left behind.
 
+To bring a game to a newer nx2android, port it again and run the tool with both new outputs. The APK and the data pack go together: the host only fits the game code (`mods/`) made in the same port, so there is no way to swap the APK alone.
+
 A port contains code that runs inside Pagurin. Adding someone else's port is like installing an app from them, and that app can touch your games and saves. Port your own games, or only use ports from people you trust. Pagurin does ask before running code that changed since a game last started.
 
 ### From a port installed as an app

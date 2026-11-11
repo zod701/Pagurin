@@ -12,7 +12,7 @@ PACKAGE = 'io.github.zod701.pagurin'
 FORMAT = 1   # what Pagurin reads from a game folder; the app refuses a game of a later format (Store.SUPPORTED_FORMAT)
 CHUNK = 64 << 20   # big files go in pieces joined on the device: one long transfer can wedge adbd
 LONG_PATH = 240    # adb on Windows cannot open a path past 260 characters
-OWNED = ('host', 'mods', 'RomFS', 'aoc')   # folders only the port fills
+OWNED = ('host', 'mods', 'RomFS', 'aoc', 'sysdata')   # folders only the port fills (sysdata: the firmware's system data, porter --firmware)
 
 # Host features Pagurin uses, found by text in the host library (a host carries no version number)
 FEATURES = {

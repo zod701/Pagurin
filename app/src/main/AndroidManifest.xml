@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Local play over the LAN (a port's env.txt DM_LAN=1): the host's sockets, and the Wi-Fi multicast lock it takes (lan_android.c), as nx2android's mkapk.py asks for them -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
     <!-- hasFragileUserData: uninstalling offers to keep the games and their saves. No predictive back: the host opens its menu on the back gesture, as nx2android's mkapk.py sets it -->
     <application
         android:label="Pagurin"

@@ -69,6 +69,9 @@
     <string name="overlay_hide">Hide</string>
     <string name="setting_opacity">Gamepad opacity</string>
     <string name="setting_rumble">Rumble</string>
+    <string name="setting_face_buttons">Face buttons</string>
+    <string name="pad_position">Position</string>
+    <string name="pad_label">Label</string>
     <string name="on">On</string>
     <string name="off">Off</string>
     <string name="setting_pass_split">Pass split</string>

@@ -64,6 +64,8 @@ object Nx2Android : Adapter {
         Setting("overlay", R.string.setting_overlay, R.string.group_input, false, listOf(Choice("1", R.string.overlay_show), Choice("0", R.string.overlay_hide)), "overlay=%d"),
         Setting("opacity", R.string.setting_opacity, R.string.group_input, false, (20..80 step 5).map { Choice("$it", text = "$it%") }, "opacity=%d"),
         Setting("rumble", R.string.setting_rumble, R.string.group_input, false, ON_OFF, "rumble=%d"),
+        // A controller's face buttons by their position (the Switch's layout) or by their label (front_android.c pad_labels, the pause menu's Face buttons row)
+        Setting("labels", R.string.setting_face_buttons, R.string.group_input, false, listOf(Choice("0", R.string.pad_position), Choice("1", R.string.pad_label)), "labels=%d"),
         Setting("DM_VK_PASS_SPLIT", R.string.setting_pass_split, R.string.group_performance, true, listOf(Choice("0", R.string.off), Choice("64"), Choice("128"), Choice("256")), "DM_VK_PASS_SPLIT"),
         Setting("DM_VK_PASS_SPLIT_DEPTH", R.string.setting_pass_split_depth, R.string.group_performance, true, ON_OFF, "DM_VK_PASS_SPLIT_DEPTH"),
         Setting("DM_VK_SETSPLIT", R.string.setting_set_split, R.string.group_performance, true, ON_OFF, "DM_VK_SETSPLIT"),
@@ -75,7 +77,7 @@ object Nx2Android : Adapter {
     override val languageKey get() = "DM_LANG"
 
     // What the host does without the row (front_android.c g_set_*, hle_oe.c: docked unless the profile says otherwise, gfx_vk_exec.c, perf_android.c)
-    private val defaults = mapOf("docked" to "1", "overlay" to "1", "opacity" to "60", "rumble" to "1", "fps" to "0",
+    private val defaults = mapOf("docked" to "1", "overlay" to "1", "opacity" to "60", "rumble" to "1", "labels" to "0", "fps" to "0",
         "DM_VK_PASS_SPLIT" to "0", "DM_VK_PASS_SPLIT_DEPTH" to "0", "DM_VK_SETSPLIT" to "0", "DM_PIN_REPLAY" to "0", "DM_LANG" to "en-US")
     override fun hostDefault(key: String) = defaults.getValue(key)
 

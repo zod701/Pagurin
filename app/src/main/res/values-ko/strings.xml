@@ -69,6 +69,9 @@
     <string name="overlay_hide">숨김</string>
     <string name="setting_opacity">게임패드 불투명도</string>
     <string name="setting_rumble">진동</string>
+    <string name="setting_face_buttons">페이스 버튼</string>
+    <string name="pad_position">위치 기준</string>
+    <string name="pad_label">표기 기준</string>
     <string name="on">켬</string>
     <string name="off">끔</string>
     <string name="setting_pass_split">패스 분할</string>
