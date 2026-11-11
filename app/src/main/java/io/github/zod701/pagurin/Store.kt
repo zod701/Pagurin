@@ -63,6 +63,11 @@ class Store(private val context: Context) {
         }.getOrNull()
     }.sortedBy { it.name }
 
+    // What changes when a game is added, removed or added again: each game folder's manifest, which the import tool writes last. The library reads the games again
+    // on a change, so a game imported while the app is open shows its new host's settings without a restart
+    fun gamesStamp(): String = gamesDir.listFiles().orEmpty().filter { it.isDirectory && !it.name.startsWith(".") }.sortedBy { it.name }
+        .joinToString { d -> "${d.name}:${ADAPTERS.firstNotNullOfOrNull { a -> File(d, a.manifest).takeIf { it.isFile }?.lastModified() }}" }
+
     // Removes a game: its folder leaves the library at once, by a rename, and is deleted behind it (hundreds of thousands of files take minutes; what an ended app
     // left is finished at the next start). keepSave: the save stays in internal storage, so the game goes on from it when it is added again
     fun removeGame(game: Game, keepSave: Boolean) {

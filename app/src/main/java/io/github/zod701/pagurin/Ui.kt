@@ -147,7 +147,15 @@ fun PagurinApp(store: Store, resumed: Int) = MaterialTheme(colorScheme = darkCol
             games = g; drivers = store.drivers(); free = store.freeBytes(); running = store.runningId()
         }
     }
-    LaunchedEffect(Unit) { while (true) { delay(2000); running = withContext(Dispatchers.IO) { store.runningId() } } }
+    LaunchedEffect(Unit) {
+        var stamp = withContext(Dispatchers.IO) { store.gamesStamp() }
+        while (true) {
+            delay(2000)
+            val (r, s) = withContext(Dispatchers.IO) { store.runningId() to store.gamesStamp() }
+            running = r
+            if (s != stamp) { stamp = s; refresh++ }   // a game imported, or removed, while the app is open (Store.gamesStamp)
+        }
+    }
 
     fun attempt(block: () -> Unit) { try { block(); notice = "" } catch (e: Exception) { notice = ctx.getString(R.string.failed, e.message) } }
     // The game's code is checked before it runs: a change since its last start is asked about (Store.stageCode)
