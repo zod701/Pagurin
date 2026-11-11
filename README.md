@@ -11,7 +11,7 @@ Pagurin follows nx2android's main branch. Choosing a GPU driver needs a port mad
 ## Features
 
 - A library with search and sorting.
-- Settings for each game: docked or handheld mode, the on-screen gamepad, rumble, the frame rate counter and the engine's performance switches. A game only shows the settings its own host reads.
+- Settings for each game: docked or handheld mode, the on-screen gamepad, rumble, a controller's face buttons by position or by label, the frame rate counter and the engine's performance switches. A game only shows the settings its own host reads.
 - One game language for every game. A game that doesn't have it runs in English.
 - GPU drivers picked per game. By default a game uses the driver its port was made with (`porter port --vulkan-driver`), or the system's if there isn't one. You can also pick the system's driver or one you added from a file.
 - Save export, import and delete. Import also takes another app's save folder (an emulator's, say) or a zip.
