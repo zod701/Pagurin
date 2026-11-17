@@ -6,8 +6,6 @@
 
 Pagurin runs ports made with [nx2android](https://github.com/shirai91/nx2android) and gives them a shared library, per-game settings, GPU drivers and save management.
 
----
-
 ## Quick start
 
 ### 1. Install Pagurin
@@ -48,8 +46,6 @@ The game shows up in the library when the transfer ends.
 > [!TIP]
 > Add `--check` to test the port and the device without sending anything. With Python 3.9 or later, `python tools/pagurin_import.py` works the same way on any system.
 
----
-
 ## Features
 
 | Feature | What it does |
@@ -57,12 +53,10 @@ The game shows up in the library when the transfer ends.
 | Library | Every game in one place, with search and sorting. |
 | Settings per game | Mode, gamepad, controllers and the engine's performance switches. See [Settings](#settings). |
 | Game language | One language for all games. A game that lacks it runs in English. |
-| GPU drivers | Add a driver from a file once, then pick it per game. |
+| GPU drivers | Add a driver once from a `.zip` or `.adpkg` package that holds its `.so` (a Turnip build, say), then pick it per game. |
 | Saves | Export, import and delete. Import also takes another app's save folder (an emulator's, say) or a zip. |
 | In-game menu | Pick the output the game's sound goes to, such as the speaker or Bluetooth headphones. |
 | Performance Mode | Pagurin declares Android's Performance mode. In it, the game keeps its own frame rate instead of stepping down to 40 or 30. |
-
----
 
 ## Settings
 
@@ -75,8 +69,6 @@ Each game shows only the settings its own port understands. A setting the engine
 | Performance | Pass split, set split, the replay thread's cores, GPU turbo (off, on, or only while frames run late) |
 | Display | Frame rate counter |
 | System | Game language |
-
----
 
 ## Adding games
 
@@ -99,8 +91,6 @@ Pagurin can't read another app's folders by itself, so this needs extra access:
 |---|---|
 | AYN | The root service built into AYN's firmware. It works while SELinux is Permissive, which is the default. |
 | Others | [Shizuku](https://shizuku.rikka.app/). Start it and allow Pagurin when asked. The old app has to export its save first, so its port needs the save manager. |
-
----
 
 ## Updating
 
@@ -129,15 +119,11 @@ The save the game is using lives in the app's internal storage, not in this fold
 
 </details>
 
----
-
 ## Notes
 
 Pagurin is tested on one device so far: an AYN Thor on Android 13. Other devices may well work, but I can't promise they do.
 
 The code was written with the help of an AI agent (Claude Opus).
-
----
 
 ## License
 
