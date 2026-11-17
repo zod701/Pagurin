@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Performance Game Mode, as nx2android's mkapk.py declares it for NVN ports (its game_mode_performance flag): a host from 2026-11-14 on (front_android.c activity_game_mode,
+     perf_android.c game_mode_sync) keeps the game's own frame period in it instead of stepping down to 40 or 30. Battery mode is not declared -->
+<game-mode-config xmlns:android="http://schemas.android.com/apk/res/android"
+    android:supportsPerformanceGameMode="true" />
