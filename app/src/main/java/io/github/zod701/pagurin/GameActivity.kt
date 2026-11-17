@@ -28,8 +28,10 @@ class GameActivity : NativeActivity() {
         val text = Language.wrap(this)   // the app's language; the activity itself keeps the host's configuration
         val manager = getSystemService(AudioManager::class.java)
         val ids = mutableListOf<Int>()
-        val adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice)
-        val dialog = AlertDialog.Builder(this).setTitle(text.getString(R.string.audio_output))
+        // The device's own dialog theme, and the rows made in its context: with the activity's Theme.Black the rows' text was white on the dialog's white list
+        val builder = AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+        val adapter = ArrayAdapter<String>(builder.context, android.R.layout.simple_list_item_single_choice)
+        val dialog = builder.setTitle(text.getString(R.string.audio_output))
             .setSingleChoiceItems(adapter, -1) { d, which -> val id = ids[which]; d.dismiss(); audioThread.execute { audioRoute(id) } }
             .setNegativeButton(text.getString(R.string.cancel), null).create()
         // The outputs there are now, again whenever one comes or goes while the list is open
