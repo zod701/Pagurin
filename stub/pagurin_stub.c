@@ -74,7 +74,7 @@ static AAssetManager *apk_assets(ANativeActivity *a, const char *apk) {
 // src over dst when their size or time differs. Read-only once whole: a library the app loads must not be writable (W^X), and a rename replaces it all the same
 // The host the app put in internal storage after checking it (Store.stageCode), never the copy on shared storage, which other writers can reach.
 // libadrenotools, when it is there, is loaded first: the host asks for it by bare name (gfx_vk_core.c vk_init), which finds a library already loaded and not this folder
-static on_create_fn load_host(const char *in) {
+static on_create_fn load_host(ANativeActivity *a, const char *in) {
     char dst[1024]; snprintf(dst, sizeof dst, "%s/host/libadrenotools.so", in);
     if (!access(dst, R_OK) && !dlopen(dst, RTLD_NOW | RTLD_LOCAL)) LOGE("dlopen %s: %s", dst, dlerror());
     snprintf(dst, sizeof dst, "%s/host/libdmhost.so", in);
@@ -82,6 +82,14 @@ static on_create_fn load_host(const char *in) {
     if (!h) { LOGE("dlopen %s: %s", dst, dlerror()); return NULL; }
     on_create_fn f = (on_create_fn)dlsym(h, "ANativeActivity_onCreate");
     if (!f) LOGE("%s has no ANativeActivity_onCreate", dst);
+    // GameActivity's audio route natives are the host's own (front_android.c, written for nx2android's ExternalActivity: the class argument is not read).
+    // A host without them (before 2026-11-13) has no audio row in its menu either, so nothing calls them
+    void *route = dlsym(h, "Java_org_nx2a_ExternalActivity_externalAudio"), *selected = dlsym(h, "Java_org_nx2a_ExternalActivity_externalAudioSelected");
+    if (route && selected) {
+        JNIEnv *E = a->env; jclass c = (*E)->GetObjectClass(E, a->clazz);
+        JNINativeMethod m[] = {{"audioRoute", "(I)V", route}, {"audioSelected", "()I", selected}};
+        if ((*E)->RegisterNatives(E, c, m, 2) != JNI_OK) { clear_exception(E, "RegisterNatives"); LOGE("the host's audio route is not reachable from the menu"); }
+    }
     return f;
 }
 
@@ -93,7 +101,7 @@ __attribute__((visibility("default"))) void ANativeActivity_onCreate(ANativeActi
         if (!intent_game(a, id)) { LOGI("no game_id: nothing to run"); a->callbacks->onResume = finish_on_resume; return; }
         snprintf(p, sizeof p, "%s/games/%s", a->externalDataPath, id); ext = strdup(p);
         snprintf(p, sizeof p, "%s/games/%s", a->internalDataPath, id); in = strdup(p); mkdirs(in);
-        host = load_host(in);
+        host = load_host(a, in);
         if (!host) { a->callbacks->onResume = finish_on_resume; return; }
         snprintf(p, sizeof p, "%s/game.apk", ext); assets = apk_assets(a, p);
         if (!assets) LOGE("%s gives no assets: the host draws the gamepad without its theme", p);

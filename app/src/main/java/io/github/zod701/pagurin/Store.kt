@@ -202,7 +202,7 @@ class Store(private val context: Context) {
     fun dropCode(s: Staged) { s.dir.deleteRecursively() }
 
     // ---- starting a game ----
-    private fun gameIntent(id: String) = Intent().setClassName(context, "android.app.NativeActivity").putExtra("game_id", id).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    private fun gameIntent(id: String) = Intent(context, GameActivity::class.java).putExtra("game_id", id).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
     private fun gameProcess() = (context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).runningAppProcesses.orEmpty().firstOrNull { it.processName == "${context.packageName}:game" }
 
@@ -222,7 +222,7 @@ class Store(private val context: Context) {
     // The game's task finishing ends the host (front_android.c on_destroy: _exit); a process that outlives it is killed
     suspend fun stopGame() {
         val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        am.appTasks.filter { it.taskInfo.baseIntent.component?.className == "android.app.NativeActivity" }.forEach { it.finishAndRemoveTask() }
+        am.appTasks.filter { it.taskInfo.baseIntent.component?.className == GameActivity::class.java.name }.forEach { it.finishAndRemoveTask() }
         repeat(15) { if (gameProcess() == null) return; kotlinx.coroutines.delay(100) }
         gameProcess()?.let { Process.killProcess(it.pid) }
         repeat(15) { if (gameProcess() == null) return; kotlinx.coroutines.delay(100) }

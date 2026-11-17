@@ -84,6 +84,13 @@
     <string name="setting_pin_replay">재생 스레드 코어 고정</string>
     <string name="pin_big">큰 코어</string>
     <string name="pin_prime">최고속 코어</string>
+    <string name="audio_output">오디오 출력</string>
+    <string name="audio_default">시스템 기본값</string>
+    <string name="audio_speaker">기기 스피커</string>
+    <string name="audio_wired">유선 헤드폰</string>
+    <string name="audio_bluetooth">블루투스 오디오</string>
+    <string name="audio_hdmi">HDMI · %1$s</string>
+    <string name="audio_usb">USB · %1$s</string>
     <string name="setting_gpu_turbo">GPU 터보</string>
     <string name="turbo_auto">프레임이 밀릴 때</string>
     <string name="setting_fps">프레임 표시</string>

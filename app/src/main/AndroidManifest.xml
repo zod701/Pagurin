@@ -28,9 +28,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- The game: its own process (the host ends it with _exit, and holds one game per process) and its own task, so the library stays reachable while it runs -->
+        <!-- The game: its own process (the host ends it with _exit, and holds one game per process) and its own task, so the library stays reachable while it runs.
+             A NativeActivity with what the host asks of its activity (GameActivity: the audio output menu) -->
         <activity
-            android:name="android.app.NativeActivity"
+            android:name=".GameActivity"
             android:process=":game"
             android:taskAffinity="io.github.zod701.pagurin.game"
             android:launchMode="singleTask"

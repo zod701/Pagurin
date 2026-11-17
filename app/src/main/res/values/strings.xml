@@ -84,6 +84,13 @@
     <string name="setting_pin_replay">Pin replay thread</string>
     <string name="pin_big">Big cores</string>
     <string name="pin_prime">Fastest core</string>
+    <string name="audio_output">Audio output</string>
+    <string name="audio_default">System default</string>
+    <string name="audio_speaker">Device speaker</string>
+    <string name="audio_wired">Wired headphones</string>
+    <string name="audio_bluetooth">Bluetooth audio</string>
+    <string name="audio_hdmi">HDMI · %1$s</string>
+    <string name="audio_usb">USB · %1$s</string>
     <string name="setting_gpu_turbo">GPU turbo</string>
     <string name="turbo_auto">When frames are late</string>
     <string name="setting_fps">Frame rate display</string>
