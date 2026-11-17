@@ -66,10 +66,18 @@ object Nx2Android : Adapter {
         Setting("rumble", R.string.setting_rumble, R.string.group_input, false, ON_OFF, "rumble=%d"),
         // A controller's face buttons by their position (the Switch's layout) or by their label (front_android.c pad_labels, the pause menu's Face buttons row)
         Setting("labels", R.string.setting_face_buttons, R.string.group_input, false, listOf(Choice("0", R.string.pad_position), Choice("1", R.string.pad_label)), "labels=%d"),
+        // The on-screen menu button; without it Back opens the menu (front_android.c g_menu_btn, read after env.txt; porter --no-menu-button)
+        Setting("DM_MENU_BUTTON", R.string.setting_menu_button, R.string.group_input, true, listOf(Choice("1", R.string.overlay_show), Choice("0", R.string.overlay_hide)), "DM_MENU_BUTTON"),
+        // Each controller a player of its own, or every controller player 1 (front_android.c pad_player)
+        Setting("DM_PAD_MERGE", R.string.setting_pad_merge, R.string.group_input, true, listOf(Choice("0", R.string.pad_each), Choice("1", R.string.pad_merged)), "DM_PAD_MERGE"),
         Setting("DM_VK_PASS_SPLIT", R.string.setting_pass_split, R.string.group_performance, true, listOf(Choice("0", R.string.off), Choice("64"), Choice("128"), Choice("256")), "DM_VK_PASS_SPLIT"),
         Setting("DM_VK_PASS_SPLIT_DEPTH", R.string.setting_pass_split_depth, R.string.group_performance, true, ON_OFF, "DM_VK_PASS_SPLIT_DEPTH"),
         Setting("DM_VK_SETSPLIT", R.string.setting_set_split, R.string.group_performance, true, ON_OFF, "DM_VK_SETSPLIT"),
         Setting("DM_PIN_REPLAY", R.string.setting_pin_replay, R.string.group_performance, true, listOf(Choice("0", R.string.off), Choice("big", R.string.pin_big), Choice("prime", R.string.pin_prime)), "DM_PIN_REPLAY"),
+        // The GPU at its highest clock, always or while frames miss the display (perf_android.c gpu_turbo). The marker is a log line of the hosts that know auto:
+        // the first hosts with DM_GPU_TURBO read auto as 0
+        Setting("DM_GPU_TURBO", R.string.setting_gpu_turbo, R.string.group_performance, true, listOf(Choice("0", R.string.off), Choice("1", R.string.on), Choice("auto", R.string.turbo_auto)),
+            "[perf] DM_GPU_TURBO=auto: off (GPU %.1f ms at the highest clock)"),
         Setting("fps", R.string.setting_fps, R.string.group_display, false, ON_OFF, "fps=%d"),
         // The language the game is told the system has (hle_oe.c GetDesiredLanguage and GetRegionCode answer from DM_LANG)
         Setting("DM_LANG", R.string.setting_language, R.string.group_system, true, GAME_LANGUAGES, "DM_LANG"),
@@ -78,6 +86,7 @@ object Nx2Android : Adapter {
 
     // What the host does without the row (front_android.c g_set_*, hle_oe.c: docked unless the profile says otherwise, gfx_vk_exec.c, perf_android.c)
     private val defaults = mapOf("docked" to "1", "overlay" to "1", "opacity" to "60", "rumble" to "1", "labels" to "0", "fps" to "0",
+        "DM_MENU_BUTTON" to "1", "DM_PAD_MERGE" to "0", "DM_GPU_TURBO" to "0",
         "DM_VK_PASS_SPLIT" to "0", "DM_VK_PASS_SPLIT_DEPTH" to "0", "DM_VK_SETSPLIT" to "0", "DM_PIN_REPLAY" to "0", "DM_LANG" to "en-US")
     override fun hostDefault(key: String) = defaults.getValue(key)
 

@@ -72,6 +72,10 @@
     <string name="setting_face_buttons">Face buttons</string>
     <string name="pad_position">Position</string>
     <string name="pad_label">Label</string>
+    <string name="setting_menu_button">Menu button</string>
+    <string name="setting_pad_merge">Controllers</string>
+    <string name="pad_each">A player each</string>
+    <string name="pad_merged">All player 1</string>
     <string name="on">On</string>
     <string name="off">Off</string>
     <string name="setting_pass_split">Pass split</string>
@@ -80,6 +84,8 @@
     <string name="setting_pin_replay">Pin replay thread</string>
     <string name="pin_big">Big cores</string>
     <string name="pin_prime">Fastest core</string>
+    <string name="setting_gpu_turbo">GPU turbo</string>
+    <string name="turbo_auto">When frames are late</string>
     <string name="setting_fps">Frame rate display</string>
     <string name="setting_language">Game language</string>
     <string name="game_language_note">Every game runs in it. A game without it runs in English. Choosing one sets every game again, a game changed in its own settings too.</string>

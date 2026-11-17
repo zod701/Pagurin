@@ -72,6 +72,10 @@
     <string name="setting_face_buttons">페이스 버튼</string>
     <string name="pad_position">위치 기준</string>
     <string name="pad_label">표기 기준</string>
+    <string name="setting_menu_button">메뉴 버튼</string>
+    <string name="setting_pad_merge">컨트롤러</string>
+    <string name="pad_each">각자 플레이어</string>
+    <string name="pad_merged">모두 1P</string>
     <string name="on">켬</string>
     <string name="off">끔</string>
     <string name="setting_pass_split">패스 분할</string>
@@ -80,6 +84,8 @@
     <string name="setting_pin_replay">재생 스레드 코어 고정</string>
     <string name="pin_big">큰 코어</string>
     <string name="pin_prime">최고속 코어</string>
+    <string name="setting_gpu_turbo">GPU 터보</string>
+    <string name="turbo_auto">프레임이 밀릴 때</string>
     <string name="setting_fps">프레임 표시</string>
     <string name="setting_language">게임 언어</string>
     <string name="game_language_note">모든 게임이 이 언어로 실행됩니다. 이 언어가 없는 게임은 영어로 실행됩니다. 고르면 게임별 설정에서 바꾼 게임까지 모두 다시 정해집니다.</string>
