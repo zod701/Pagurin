@@ -459,7 +459,7 @@ private fun SettingsTab(store: Store, g: Game, drivers: List<Driver>, remove: (G
         val cur = values[s.key] ?: s.choices.first().value; val idx = s.choices.indexOfFirst { it.value == cur }
         row(stringResource(s.label), s.key, s.choices.getOrNull(idx)?.let { choiceLabel(it) } ?: cur) { store.setValue(g, s.key, s.choices[(idx + 1) % s.choices.size].value); values = store.values(g) }
     }
-    @Composable fun heading(t: String) = Label(t, Modifier.padding(top = 6.dp, bottom = 2.dp, start = 10.dp), 11, TextSub, FontWeight.SemiBold)
+    @Composable fun heading(t: String) = Label(t, Modifier.padding(top = 6.dp, bottom = 2.dp, start = 10.dp), 11, Accent, FontWeight.SemiBold)
     Row(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
         Column(Modifier.weight(1f)) {
             if (g.settings.isEmpty() && !g.takesDriver) { Label(stringResource(R.string.no_settings), Modifier.padding(10.dp), 14, TextSub, lines = 3); SmallButton(stringResource(R.string.remove_game), Modifier.padding(10.dp)) { remove(g) }; return@Column }
